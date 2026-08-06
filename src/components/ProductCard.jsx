@@ -50,8 +50,7 @@ export function ProductCard({ product, variant = 'classic' }) {
   const handleBuyNow = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    addToCart(product);
-    navigate('/checkout');
+    navigate('/checkout', { state: { buyNowProduct: product } });
   };
 
   if (variant === 'flipkart') {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useOrders } from '../context/OrdersContext';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,7 @@ import './Checkout.css';
 
 export function Checkout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { addOrder, verifyOrderPayment } = useOrders();
   const { user } = useAuth();
@@ -25,14 +26,19 @@ export function Checkout() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const shipping = cartTotal >= pricing.freeShippingThreshold ? 0 : pricing.shippingFee;
-  const total = cartTotal + shipping;
+  const buyNowProduct = location.state?.buyNowProduct;
+  const isBuyNow = !!buyNowProduct;
+
+  const items = isBuyNow ? [buyNowProduct] : cartItems;
+  const itemTotal = isBuyNow ? buyNowProduct.price : cartTotal;
+  const shipping = itemTotal >= pricing.freeShippingThreshold ? 0 : pricing.shippingFee;
+  const total = itemTotal + shipping;
 
   useEffect(() => {
-    if (cartItems.length === 0) {
+    if (!isBuyNow && cartItems.length === 0) {
       navigate('/products');
     }
-  }, [cartItems, navigate]);
+  }, [cartItems, navigate, isBuyNow]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -57,11 +63,11 @@ export function Checkout() {
     setIsSubmitting(true);
     try {
       const { order, payment } = await addOrder({
-        items: cartItems.map(item => ({
+        items: items.map(item => ({
           product: item.id,
           name: item.name,
           price: item.price,
-          quantity: item.quantity,
+          quantity: item.quantity || 1,
           image: item.image
         })),
         shippingInfo: {
@@ -74,7 +80,9 @@ export function Checkout() {
           zip: formData.zip
         }
       });
-      clearCart();
+      if (!isBuyNow) {
+        clearCart();
+      }
 
       if (payment?.enabled) {
         const scriptLoaded = await loadRazorpayScript();
@@ -116,7 +124,7 @@ export function Checkout() {
     }
   };
 
-  if (cartItems.length === 0) {
+  if (!isBuyNow && cartItems.length === 0) {
     return (
       <div className="checkout-empty">
         <h2>Your cart is empty</h2>
@@ -242,20 +250,20 @@ export function Checkout() {
         <aside className="order-summary">
           <h2>Order Summary</h2>
           <ul className="summary-items">
-            {cartItems.map(item => (
+            {items.map(item => (
               <li key={item.id} className="summary-item">
                 <div>
                   <span className="summary-item-name">{item.name}</span>
-                  <span className="summary-item-qty">× {item.quantity}</span>
+                  <span className="summary-item-qty">× {item.quantity || 1}</span>
                 </div>
-                <span className="summary-item-price">{formatCurrency(item.price * item.quantity)}</span>
+                <span className="summary-item-price">{formatCurrency(item.price * (item.quantity || 1))}</span>
               </li>
             ))}
           </ul>
           <div className="summary-totals">
             <div className="summary-row">
               <span>Subtotal</span>
-              <span>{formatCurrency(cartTotal)}</span>
+              <span>{formatCurrency(itemTotal)}</span>
             </div>
             <div className="summary-row">
               <span>Shipping</span>

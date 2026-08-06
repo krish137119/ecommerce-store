@@ -51,8 +51,7 @@ export function ProductDetail() {
   };
 
   const handleBuyNow = () => {
-    addToCart(product);
-    navigate('/checkout');
+    navigate('/checkout', { state: { buyNowProduct: product } });
   };
 
   return (
