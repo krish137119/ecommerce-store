@@ -1,0 +1,104 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
+import { OrdersProvider } from './context/OrdersContext';
+import { ProductsProvider } from './context/ProductsContext';
+import { AuthProvider } from './context/AuthContext';
+import { Header } from './components/Header';
+import { ScrollToSection } from './components/ScrollToSection';
+import { AdminRoute } from './components/AdminRoute';
+import { UserRoute } from './components/UserRoute';
+import { Home } from './pages/Home';
+import { ProductListing } from './pages/ProductListing';
+import { ProductDetail } from './pages/ProductDetail';
+import { Cart } from './pages/Cart';
+import { Checkout } from './pages/Checkout';
+import { OrderConfirmation } from './pages/OrderConfirmation';
+import { OrderHistory } from './pages/OrderHistory';
+import { Profile } from './pages/Profile';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { OtpLogin } from './pages/OtpLogin';
+import './App.css';
+
+function App() {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <OrdersProvider>
+          <ProductsProvider>
+            <Router>
+              <div className="app">
+                <Header />
+                <main>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/products" element={<ProductListing />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/otp" element={<OtpLogin />} />
+                    <Route
+                      path="/checkout"
+                      element={
+                        <UserRoute>
+                          <Checkout />
+                        </UserRoute>
+                      }
+                    />
+                    <Route
+                      path="/order/:id"
+                      element={
+                        <UserRoute>
+                          <OrderConfirmation />
+                        </UserRoute>
+                      }
+                    />
+                    <Route
+                      path="/account/orders"
+                      element={
+                        <UserRoute>
+                          <OrderHistory />
+                        </UserRoute>
+                      }
+                    />
+                    <Route
+                      path="/account/profile"
+                      element={
+                        <UserRoute>
+                          <Profile />
+                        </UserRoute>
+                      }
+                    />
+                    <Route
+                      path="/admin"
+                      element={
+                        <AdminRoute>
+                          <AdminDashboard />
+                        </AdminRoute>
+                      }
+                    />
+                  </Routes>
+                </main>
+                <footer className="footer">
+                  <div className="footer-content">
+                    <p>&copy; 2026 ShopEasy. All rights reserved.</p>
+                    <nav>
+                      <a href="/#privacy">Privacy</a>
+                      <a href="/#terms">Terms</a>
+                      <a href="/#contact">Contact</a>
+                    </nav>
+                  </div>
+                </footer>
+                <ScrollToSection />
+              </div>
+            </Router>
+          </ProductsProvider>
+        </OrdersProvider>
+      </CartProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
