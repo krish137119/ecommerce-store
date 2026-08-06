@@ -7,6 +7,7 @@
 > 🛍️ **Live demo:** https://ecommerce-store-shop-easy.vercel.app/
 
 - **Storefront** — home page, 108 demo products in 9 categories, search + filters, product pages with galleries, full shopping cart, checkout
+- **Typing-based live search** — instant product & category suggestions as you type (keyboard-friendly)
 - **Admin dashboard** — manage products, stock, order statuses, and customers
 - **Accounts** — email/password login plus **passwordless email OTP** sign-in
 - **Payments** — Razorpay (UPI / cards / net banking), optional — runs in demo mode without keys
