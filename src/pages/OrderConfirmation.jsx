@@ -4,6 +4,7 @@ import { api } from '../api/client';
 import { useOrders } from '../context/OrdersContext';
 import { formatCurrency } from '../utils/format';
 import { OrderTimeline } from '../components/OrderTimeline';
+import { Confetti } from '../components/Confetti';
 import { loadRazorpayScript, openRazorpayCheckout } from '../utils/razorpay';
 import './OrderConfirmation.css';
 
@@ -102,9 +103,11 @@ export function OrderConfirmation() {
   const paymentEnabled = Boolean(order.payment?.enabled);
 
   return (
-    <section className="order-confirmation">
-      <div className="container">
-        <div className="confirmation-card">
+    <>
+      <Confetti />
+      <section className="order-confirmation">
+        <div className="container">
+          <div className="confirmation-card">
           <div className={`success-icon ${paid ? '' : 'success-icon-pending'}`}>
             {paid ? (
               <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2">
@@ -193,5 +196,6 @@ export function OrderConfirmation() {
         </div>
       </div>
     </section>
+    </>
   );
 }
