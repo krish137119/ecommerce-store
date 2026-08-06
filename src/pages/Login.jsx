@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getSavedAccounts, removeSavedAccount } from '../utils/savedAccounts';
 import './auth.css';
 
 export function Login() {
@@ -9,7 +10,18 @@ export function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedAccounts, setSavedAccounts] = useState(getSavedAccounts);
   const from = '/';
+
+  const handleUseAccount = (email) => {
+    setFormData(prev => ({ ...prev, email }));
+    setError('');
+  };
+
+  const handleRemoveAccount = (email) => {
+    removeSavedAccount(email);
+    setSavedAccounts(getSavedAccounts());
+  };
 
   if (user) {
     const destination = user.role === 'admin' ? '/admin' : from;
@@ -80,6 +92,42 @@ export function Login() {
             {isSubmitting ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+
+        {savedAccounts.length > 0 && (
+          <div className="saved-accounts">
+            <p className="saved-accounts-title">Quick switch</p>
+            <ul className="saved-accounts-list">
+              {savedAccounts.map(account => (
+                <li key={account.email} className="saved-account">
+                  <button
+                    type="button"
+                    className="saved-account-btn"
+                    onClick={() => handleUseAccount(account.email)}
+                  >
+                    <span className="saved-account-avatar" aria-hidden="true">
+                      {(account.name || '?').charAt(0).toUpperCase()}
+                    </span>
+                    <span className="saved-account-info">
+                      <span className="saved-account-name">{account.name}</span>
+                      <span className="saved-account-email">
+                        {account.email} · {account.role === 'admin' ? 'Admin' : 'Customer'}
+                      </span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="saved-account-remove"
+                    onClick={() => handleRemoveAccount(account.email)}
+                    aria-label={`Remove ${account.email}`}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <p className="auth-switch">
           New to ShopEasy? <Link to="/register">Create an account</Link>
         </p>
