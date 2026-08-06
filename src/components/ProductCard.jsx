@@ -47,10 +47,13 @@ export function ProductCard({ product, variant = 'classic' }) {
     addToCart(product);
   };
 
-  const handleBuyNow = (event) => {
+const handleBuyNow = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    navigate('/checkout', { state: { buyNowProduct: product } });
+    const added = await addToCart(product);
+    if (added !== false) {
+      navigate('/checkout');
+    }
   };
 
   if (variant === 'flipkart') {
