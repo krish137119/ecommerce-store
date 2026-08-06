@@ -11,7 +11,7 @@ import {
 export async function updateProfile(req, res, next) {
   try {
     const user = req.user;
-    const { name, email, phone } = req.body || {};
+    const { name, email, phone, address, city, zip } = req.body || {};
 
     if (!validateName(name ?? user.name)) {
       return res.status(400).json({ error: 'Name must be 2-60 characters.' });
@@ -19,6 +19,35 @@ export async function updateProfile(req, res, next) {
 
     const normalizedEmail = email === undefined ? user.email : normalizeEmail(email);
     const normalizedPhone = phone === undefined ? user.phone : normalizePhone(phone);
+
+    const normalizedAddress =
+      address === undefined
+        ? user.address
+        : typeof address === 'string'
+          ? address.trim()
+          : '';
+    const normalizedCity =
+      city === undefined
+        ? user.city
+        : typeof city === 'string'
+          ? city.trim()
+          : '';
+    const normalizedZip =
+      zip === undefined
+        ? user.zip
+        : typeof zip === 'string'
+          ? zip.trim()
+          : '';
+
+    if (normalizedAddress && (normalizedAddress.length < 3 || normalizedAddress.length > 200)) {
+      return res.status(400).json({ error: 'Address must be 3-200 characters.' });
+    }
+    if (normalizedCity && (normalizedCity.length < 2 || normalizedCity.length > 50)) {
+      return res.status(400).json({ error: 'City must be 2-50 characters.' });
+    }
+    if (normalizedZip && (normalizedZip.length < 2 || normalizedZip.length > 10)) {
+      return res.status(400).json({ error: 'PIN code must be 2-10 characters.' });
+    }
 
     if (user.role !== 'admin') {
       if (normalizedEmail && !validateEmail(normalizedEmail)) {
@@ -43,6 +72,9 @@ export async function updateProfile(req, res, next) {
 
     user.name = name.trim();
     user.email = normalizedEmail || null;
+    user.address = normalizedAddress || null;
+    user.city = normalizedCity || null;
+    user.zip = normalizedZip || null;
     if (user.role !== 'admin') {
       user.phone = normalizedPhone || null;
     }

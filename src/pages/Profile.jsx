@@ -17,6 +17,14 @@ export function Profile() {
   const [profileMessage, setProfileMessage] = useState('');
   const [profileError, setProfileError] = useState('');
 
+  const [addressForm, setAddressForm] = useState({
+    address: user.address || '',
+    city: user.city || '',
+    zip: user.zip || ''
+  });
+  const [addressMessage, setAddressMessage] = useState('');
+  const [addressError, setAddressError] = useState('');
+
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
     newPassword: '',
@@ -55,6 +63,48 @@ export function Profile() {
       setProfileMessage('Profile updated.');
     } catch (err) {
       setProfileError(err.message);
+    }
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressForm(prev => ({ ...prev, [name]: value }));
+    setAddressMessage('');
+    setAddressError('');
+  };
+
+  const handleAddressSubmit = async (e) => {
+    e.preventDefault();
+    const { address, city, zip } = addressForm;
+    const allProvided = address.trim() && city.trim() && zip.trim();
+    const anyProvided = address.trim() || city.trim() || zip.trim();
+    if (anyProvided && !allProvided) {
+      setAddressError('Please fill in address, city, and PIN code together.');
+      return;
+    }
+    if (allProvided) {
+      if (address.trim().length < 3 || address.trim().length > 200) {
+        setAddressError('Address must be 3-200 characters.');
+        return;
+      }
+      if (city.trim().length < 2 || city.trim().length > 50) {
+        setAddressError('City must be 2-50 characters.');
+        return;
+      }
+      if (zip.trim().length < 2 || zip.trim().length > 10) {
+        setAddressError('PIN code must be 2-10 characters.');
+        return;
+      }
+    }
+    try {
+      await updateProfile({
+        address: address.trim(),
+        city: city.trim(),
+        zip: zip.trim()
+      });
+      setAddressMessage('Delivery address saved.');
+    } catch (err) {
+      setAddressError(err.message);
     }
   };
 
@@ -156,6 +206,56 @@ export function Profile() {
             {profileError && <p className="settings-error">{profileError}</p>}
             {profileMessage && <p className="settings-success">{profileMessage}</p>}
             <button type="submit" className="settings-btn">Save Changes</button>
+          </form>
+
+          <form className="settings-card" onSubmit={handleAddressSubmit}>
+            <h2>Delivery Address</h2>
+            <p className="field-hint">Your saved address auto-fills at checkout.</p>
+            <div className="form-group">
+              <label htmlFor="profile-address">Address</label>
+              <input
+                id="profile-address"
+                name="address"
+                type="text"
+                value={addressForm.address}
+                onChange={handleAddressChange}
+                placeholder="House no, street, area"
+                autoComplete="street-address"
+                maxLength="200"
+              />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="profile-city">City</label>
+                <input
+                  id="profile-city"
+                  name="city"
+                  type="text"
+                  value={addressForm.city}
+                  onChange={handleAddressChange}
+                  placeholder="City"
+                  autoComplete="address-level2"
+                  maxLength="50"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="profile-zip">PIN Code</label>
+                <input
+                  id="profile-zip"
+                  name="zip"
+                  type="text"
+                  value={addressForm.zip}
+                  onChange={handleAddressChange}
+                  placeholder="6-digit PIN"
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                  maxLength="10"
+                />
+              </div>
+            </div>
+            {addressError && <p className="settings-error">{addressError}</p>}
+            {addressMessage && <p className="settings-success">{addressMessage}</p>}
+            <button type="submit" className="settings-btn">Save Address</button>
           </form>
 
           <form className="settings-card" onSubmit={handlePasswordSubmit}>

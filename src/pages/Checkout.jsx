@@ -13,13 +13,14 @@ export function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { addOrder, verifyOrderPayment } = useOrders();
   const { user } = useAuth();
+  const nameParts = (user?.name || '').split(' ');
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    firstName: nameParts[0] || '',
+    lastName: nameParts.slice(1).join(' ') || '',
     email: user?.email || '',
-    address: '',
-    city: '',
-    zip: ''
+    address: user?.address || '',
+    city: user?.city || '',
+    zip: user?.zip || ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);

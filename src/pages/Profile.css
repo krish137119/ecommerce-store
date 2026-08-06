@@ -95,6 +95,12 @@
   gap: 0.375rem;
 }
 
+.settings-card .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .settings-card label {
   font-size: 0.875rem;
   font-weight: 500;
