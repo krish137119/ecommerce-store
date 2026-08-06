@@ -13,7 +13,6 @@ export function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [mobileQuery, setMobileQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const userMenuRef = useRef(null);
@@ -67,13 +66,6 @@ export function Header() {
     event.preventDefault();
     const q = query;
     setQuery('');
-    goToProducts(q);
-  };
-
-  const handleMobileSearch = (event) => {
-    event.preventDefault();
-    const q = mobileQuery;
-    setMobileQuery('');
     goToProducts(q);
   };
 
@@ -268,23 +260,6 @@ export function Header() {
 
       {menuOpen && (
         <nav id="mobile-menu" className="mobile-menu" aria-label="Mobile navigation">
-          {layout.showSearch && (
-            <form className="mobile-search" role="search" onSubmit={handleMobileSearch}>
-              <LiveSearch
-                value={mobileQuery}
-                onChange={setMobileQuery}
-                onSubmit={() => {
-                  const q = mobileQuery;
-                  setMobileQuery('');
-                  goToProducts(q);
-                }}
-                placeholder={layout.searchPlaceholder}
-                ariaLabel={layout.searchPlaceholder}
-                compact
-              />
-            </form>
-          )}
-
           {layout.showAccount && user && (
             <div className="mobile-account">
               <span className="mobile-greeting">Hi, {user.name}</span>

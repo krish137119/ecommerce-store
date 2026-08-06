@@ -184,16 +184,12 @@
   background: var(--color-primary-soft);
 }
 
-/* Mobile menu variant */
-.mobile-search .live-search-input-wrap {
+/* Expandable mobile search bar variant */
+.mobile-search-bar .live-search-input-wrap {
   border-radius: var(--radius);
 }
 
-.mobile-search .live-search-input-wrap .search-input {
-  padding: 0.6rem 0.75rem;
-}
-
-.mobile-search .live-search-input-wrap .search-submit {
+.mobile-search-bar .live-search-input-wrap .search-submit {
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 0 1rem;
   font-weight: 600;
