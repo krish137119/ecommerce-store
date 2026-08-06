@@ -25,7 +25,7 @@ export function Register() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (user) {
-    return <Navigate to="/account/orders" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const handleChange = (e) => {
@@ -63,7 +63,7 @@ export function Register() {
         email: formData.email.trim().toLowerCase(),
         password: formData.password
       });
-      navigate('/account/orders', { replace: true });
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

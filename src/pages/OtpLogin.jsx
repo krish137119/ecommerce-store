@@ -14,7 +14,7 @@ export function OtpLogin() {
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const from = location.state?.from || '/account/orders';
+  const from = location.state?.from || '/';
 
   if (user) {
     return <Navigate to={from} replace />;

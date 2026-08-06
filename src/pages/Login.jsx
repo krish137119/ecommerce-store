@@ -10,7 +10,7 @@ export function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const from = location.state?.from || '/account/orders';
+  const from = location.state?.from || '/';
 
   if (user) {
     const destination = user.role === 'admin' ? '/admin' : from;
