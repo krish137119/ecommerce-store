@@ -225,6 +225,108 @@
   text-decoration: underline;
 }
 
+.saved-accounts {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.saved-accounts-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.625rem;
+}
+
+.saved-accounts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.saved-account {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.saved-account-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.saved-account-btn:hover {
+  border-color: var(--color-border-focus);
+  background: var(--color-primary-soft);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.saved-account-avatar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.saved-account-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.saved-account-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.saved-account-email {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-account-remove {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition);
+}
+
+.saved-account-remove:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-soft, rgba(239, 68, 68, 0.12));
+}
+
 @media (max-width: 640px) {
   .auth-card {
     padding: 2rem 1.5rem;
