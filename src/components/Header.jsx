@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { LiveSearch } from './LiveSearch';
 import { site, layout, nav } from '../config/site';
 import './Header.css';
 
@@ -115,20 +116,17 @@ export function Header() {
 
         {layout.showSearch && (
           <form className="search-form" role="search" onSubmit={handleSearch}>
-            <input
-              type="search"
-              className="search-input"
-              placeholder={layout.searchPlaceholder}
+            <LiveSearch
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              aria-label={layout.searchPlaceholder}
+              onChange={setQuery}
+              onSubmit={() => {
+                const q = query;
+                setQuery('');
+                goToProducts(q);
+              }}
+              placeholder={layout.searchPlaceholder}
+              ariaLabel={layout.searchPlaceholder}
             />
-            <button type="submit" className="search-submit" aria-label="Search">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="7" />
-                <line x1="21" y1="21" x2="16.5" y2="16.5" />
-              </svg>
-            </button>
           </form>
         )}
 
@@ -220,15 +218,18 @@ export function Header() {
         <nav id="mobile-menu" className="mobile-menu" aria-label="Mobile navigation">
           {layout.showSearch && (
             <form className="mobile-search" role="search" onSubmit={handleMobileSearch}>
-              <input
-                type="search"
-                className="search-input"
-                placeholder={layout.searchPlaceholder}
+              <LiveSearch
                 value={mobileQuery}
-                onChange={(event) => setMobileQuery(event.target.value)}
-                aria-label={layout.searchPlaceholder}
+                onChange={setMobileQuery}
+                onSubmit={() => {
+                  const q = mobileQuery;
+                  setMobileQuery('');
+                  goToProducts(q);
+                }}
+                placeholder={layout.searchPlaceholder}
+                ariaLabel={layout.searchPlaceholder}
+                compact
               />
-              <button type="submit" className="search-submit">Go</button>
             </form>
           )}
 
