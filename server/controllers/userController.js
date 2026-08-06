@@ -70,7 +70,7 @@ export async function updateProfile(req, res, next) {
       }
     }
 
-    user.name = name.trim();
+    user.name = (name ?? user.name).trim();
     user.email = normalizedEmail || null;
     user.address = normalizedAddress || null;
     user.city = normalizedCity || null;
