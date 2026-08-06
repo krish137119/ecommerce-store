@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useOrders } from '../context/OrdersContext';
 import { formatCurrency } from '../utils/format';
+import { OrderTimeline } from '../components/OrderTimeline';
 import { loadRazorpayScript, openRazorpayCheckout } from '../utils/razorpay';
 import './OrderConfirmation.css';
 
@@ -154,6 +155,8 @@ export function OrderConfirmation() {
               Shipping to: {order.shippingInfo.firstName} {order.shippingInfo.lastName}, {order.shippingInfo.city} {order.shippingInfo.zip}
             </p>
           </div>
+
+          <OrderTimeline status={order.status} />
 
           {paymentEnabled && !paid && (
             <div className="order-pay-box">

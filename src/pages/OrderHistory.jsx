@@ -3,6 +3,7 @@ import { useOrders } from '../context/OrdersContext';
 import { useAuth } from '../context/AuthContext';
 import { AccountTabs } from '../components/AccountTabs';
 import { formatCurrency } from '../utils/format';
+import { OrderTimeline } from '../components/OrderTimeline';
 import './OrderHistory.css';
 
 function formatDate(isoDate) {
@@ -83,6 +84,8 @@ export function OrderHistory() {
                       </div>
                     ))}
                   </div>
+
+                  <OrderTimeline status={order.status} compact />
 
                   <div className="order-card-footer">
                     <div className="order-totals">
