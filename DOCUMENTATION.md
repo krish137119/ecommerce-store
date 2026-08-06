@@ -671,7 +671,69 @@ Three tabs:
 
 ---
 
-## 15. Deployment
+## 15. Deployment (Vercel + Render)
+
+The recommended production setup splits the app the way it's designed:
+
+- **Frontend (store) → Vercel** (free) — serves the built React app.
+- **API → Render** (free) — runs the Express server, which connects to MongoDB Atlas.
+- **One domain illusion:** Vercel *rewrites* `/api/*` to the Render URL (see `vercel.json`), so the browser treats the whole store as **one site**. This keeps the existing `SameSite=Strict` + `httpOnly` cookie auth working with no CORS changes.
+
+```
+Browser → https://store.vercel.app          (frontend, Vercel)
+              └── /api/*  ──rewrite──►  https://api.onrender.com/api/*   (Express, Render)
+                                              └── MongoDB Atlas
+```
+
+The two config files already in the repo make this almost one-click:
+
+| File | What it does |
+| --- | --- |
+| `vercel.json` | Rewrites `/api/:path*` → `${API_URL}/api/:path*` (set `API_URL` env var on Vercel to your Render URL) |
+| `render.yaml` | Render blueprint for the API: Node runtime, build + start commands, health check, env vars (secrets use `sync: false` so you type them in the Render dashboard — never in the repo) |
+
+### Step 1 — Deploy the API to Render
+
+1. Go to https://dashboard.render.com → **New** → **Blueprint**.
+2. Pick the **ecommerce-store** GitHub repo. Render reads `render.yaml` and creates a web service called `shopeasy-api`.
+3. During setup Render asks for the `sync: false` variables. Fill them from your private `.env` (**generate a brand-new `JWT_SECRET`** — don't reuse the dev one):
+   - `MONGO_URI` — your Atlas connection string (see Step 3)
+   - `JWT_SECRET` — new random value: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+   - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — admin login (must exist in Atlas, see Step 3)
+   - `BREVO_API_KEY` / `BREVO_FROM_EMAIL` — your Brevo sender values
+   - `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` — leave empty to run without online payments
+4. Click **Apply**. Wait for the deploy; when it's green, open `https://<your-app>.onrender.com/api/health` → you should see `{"ok":true}`.
+5. Copy the service URL (e.g. `https://shopeasy-api.onrender.com`) — you'll need it for Vercel.
+
+> **Free-tier note:** Render's free web service sleeps after ~15 min of no traffic and takes ~30–60 s to wake on the first request. Also, free web services now require a credit card on file. You can pick the free plan or upgrade later.
+
+### Step 2 — Deploy the frontend to Vercel
+
+1. Go to https://vercel.com → **Add New** → **Project** → import the **ecommerce-store** repo.
+2. Vercel auto-detects Vite (framework preset `Vite`). Build command `npm run build`, output `dist` — defaults are correct.
+3. Add one **Environment Variable**: `API_URL` = your Render URL from Step 1 (e.g. `https://shopeasy-api.onrender.com`). This is what `vercel.json` uses in the rewrite.
+4. Deploy. When done, open the live URL and sign in at `/login`.
+5. **Verify:** in the browser dev tools → Application → Cookies, you should see the `access_token`/`refresh_token` cookies set for your Vercel domain (that proves the proxy + secure cookies work). Place a test order to confirm the API and order-confirmation email work end-to-end.
+
+> If `${API_URL}` doesn't resolve for some reason, edit `vercel.json` to hardcode your Render URL (e.g. `"destination": "https://shopeasy-api.onrender.com/api/:path*"`) and redeploy.
+
+### Step 3 — MongoDB Atlas (one-time)
+
+1. Go to https://cloud.mongodb.com → your cluster → **Network Access** → **Add IP Address** → allow `0.0.0.0/0` (anywhere) so Render can connect. (Your cluster already has your 108 products + admin account.)
+2. In **Database Access**, confirm your database user has read/write permission.
+3. Your `MONGO_URI` (from `.env`) is the same string Render will use.
+4. Because the admin already exists in Atlas, `ADMIN_PASSWORD` in Render does **not** override it — log in with the existing admin password. (On a brand-new empty cluster, Render's `ADMIN_EMAIL`/`ADMIN_PASSWORD` create the admin automatically.)
+
+### Step 4 — Optional: custom domain & live payments
+
+- **Custom domain:** Vercel → Project → Settings → Domains (and Render → Settings → Custom Domain). Certificates are automatic.
+- **Razorpay live:** switch `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET` to live keys in Render's dashboard; nothing else changes.
+
+### Alternative: Render hosts everything (simpler)
+
+You don't have to use Vercel at all — the server already serves the built frontend in production (`npm run start`). Just deploy the repo to Render (same blueprint) and open your Render URL. Everything is on one origin; no `API_URL` needed. Vercel is only used when you want the frontend on a separate service.
+
+### Traditional self-hosting (still supported)
 
 ```sh
 npm install
