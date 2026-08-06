@@ -96,6 +96,13 @@ export async function updateItem(req, res, next) {
     if (!quantity) {
       user.cart = user.cart.filter(item => String(item.product) !== productId);
     } else {
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ error: 'Product not found.' });
+      }
+      if (quantity > (product.stock ?? 0)) {
+        return res.status(400).json({ error: `Only ${product.stock} units of "${product.name}" are available.` });
+      }
       existing.quantity = quantity;
     }
     await user.save();

@@ -1,88 +1,67 @@
 # ShopEasy — E-commerce Store
 
-Full-stack e-commerce app: React (Vite) frontend + Node/Express API + MongoDB.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Stack
+**Free & open-source.** A complete, ready-to-run online store you can download, run on your own computer, launch on the internet, and keep managing — all from a simple admin panel. No coding needed to run or manage it.
 
-- **Frontend**: React 19, Vite 8, React Router 7, oxlint
-- **Backend**: Node.js, Express, Mongoose, JSON Web Tokens (httpOnly cookies)
-- **Database**: MongoDB
-- **Security**: bcrypt password hashing, short-lived access tokens + rotating refresh tokens, httpOnly + SameSite=Strict cookies, helmet, rate-limited auth endpoints, server-side price recomputation for orders, role-based access control (admin/customer)
+- **Storefront** — home page, 108 demo products in 9 categories, search + filters, product pages with galleries, full shopping cart, checkout
+- **Admin dashboard** — manage products, stock, order statuses, and customers
+- **Accounts** — email/password login plus **passwordless email OTP** sign-in
+- **Payments** — Razorpay (UPI / cards / net banking), optional — runs in demo mode without keys
+- **Real inventory** — per-product stock, auto-decremented on orders, never oversells
+- **Email** — OTP login codes and **order confirmation receipts** (free via Brevo, 300 emails/day)
+- **Secure** — hashed passwords, httpOnly cookies, rotating session tokens, server-side price checks
+- **Re-brandable** — store name, colors, and pricing controlled from one settings file
 
-## Setup
+## Quick start (5 minutes)
 
-1. MongoDB must be running locally (default: `mongodb://127.0.0.1:27017`).
-2. Install dependencies:
+1. Install **Node.js** (https://nodejs.org, LTS version)
+2. Install **MongoDB** (https://www.mongodb.com/try/download/community) — or use a free cloud database at https://www.mongodb.com/atlas
+3. Download this repo (ZIP, or `git clone`), then:
 
-   ```sh
-   npm install
-   ```
+```sh
+npm install
+copy .env.example .env     # Windows — or:  cp .env.example .env  (Mac/Linux)
+npm run dev
+```
 
-3. Create the environment file from the example and fill it in:
+4. Open the `.env` file and set `JWT_SECRET` (see below), `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
 
-   ```sh
-   cp .env.example .env
-   ```
+```sh
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"   # paste the output into JWT_SECRET
+```
 
-   `JWT_SECRET` must be set to a long random string:
-   `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+Open http://localhost:5173 for the store, and http://localhost:5173/admin after signing in with your admin credentials.
 
-4. Run both the API and the web app:
+> **Your secrets stay private.** Everything personal (database address, email key, payment keys, admin password) lives in your local `.env` file, which is **never uploaded** to GitHub — so the open-source code never exposes your keys. Anyone who clones the repo uses their own keys from `.env.example`. Full explanation: [DOCUMENTATION.md](DOCUMENTATION.md) → *Part 3*.
 
-   ```sh
-   npm run dev
-   ```
+## Where to find your own free keys (optional)
 
-   - Web app: http://localhost:5173
-   - API: http://localhost:5000 (`/api` is proxied by Vite)
+| Service | What it's for | Where to get it |
+| --- | --- | --- |
+| Brevo | Email OTP + order receipts (300/day free) | brevo.com → Settings → API Keys |
+| Razorpay | Online payments (optional) | dashboard.razorpay.com → API Keys |
+| MongoDB Atlas | Cloud database (optional) | mongodb.com/atlas → free cluster |
 
-## First boot
+## Documentation
 
-On first start the server seeds into MongoDB:
-
-- An **admin** account from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`
-- The demo **products** (only while the products collection is empty; set `SEED_PRODUCTS=false` to disable)
-
-Sign in as admin at `/login` to reach the **Admin Dashboard** (`/admin`), where admins manage products, order statuses, and customer accounts. Customers sign in with email/password or a mobile OTP at `/otp`.
+- **[DOCUMENTATION.md](DOCUMENTATION.md)** — everything:
+  - **Part 1** — every feature explained in plain English (what / how / benefit)
+  - **Part 2** — run it yourself, step by step
+  - **Part 3** — how your secrets stay secret
+  - **Part 4+** — full technical reference: architecture, data models, API endpoints, deployment
 
 ## Scripts
 
-| Command           | What it does                              |
-| ----------------- | ----------------------------------------- |
-| `npm run dev`     | Runs Vite + API together (concurrently)   |
-| `npm run dev:web` | Vite dev server only                      |
-| `npm run dev:api` | Express API with `--watch`                |
-| `npm run start`   | Run the API in production (serves `dist`) |
-| `npm run build`   | Build the frontend into `dist/`           |
-| `npm run lint`    | Run oxlint                                |
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Runs the store + API together (http://localhost:5173) |
+| `npm run dev:web` | Storefront only |
+| `npm run dev:api` | API only (with auto-restart) |
+| `npm run build` | Builds the storefront for production |
+| `npm run start` | Runs in production mode (serves the built store) |
+| `npm run lint` | Checks code quality |
 
-## API overview
+## License
 
-| Method   | Route                     | Access           | Purpose                    |
-| -------- | ------------------------- | ---------------- | -------------------------- |
-| POST     | `/api/auth/register`      | public           | Create customer account    |
-| POST     | `/api/auth/login`         | public           | Email + password sign-in   |
-| POST     | `/api/auth/logout`        | signed in        | Clear session              |
-| GET      | `/api/auth/me`            | public           | Current session user       |
-| POST     | `/api/auth/refresh`       | public           | Rotate tokens              |
-| POST     | `/api/auth/otp/request`   | public           | Request mobile OTP         |
-| POST     | `/api/auth/otp/verify`    | public           | Verify OTP + sign in       |
-| GET      | `/api/products`           | public           | List products              |
-| GET      | `/api/products/:id`       | public           | Single product             |
-| POST     | `/api/products`           | admin            | Create product             |
-| PUT      | `/api/products/:id`       | admin            | Update product             |
-| DELETE   | `/api/products/:id`       | admin            | Delete product             |
-| POST     | `/api/orders`             | signed in        | Place order                |
-| GET      | `/api/orders/mine`        | signed in        | My orders                  |
-| GET      | `/api/orders/all`         | admin            | All orders                 |
-| GET      | `/api/orders/:id`         | owner or admin   | Order details              |
-| PATCH    | `/api/orders/:id/status`  | admin            | Update order status        |
-| PATCH    | `/api/users/me`           | signed in        | Update profile             |
-| PATCH    | `/api/users/me/password`  | signed in        | Change password            |
-| GET      | `/api/users/customers`    | admin            | List customers             |
-| PATCH    | `/api/users/customers/:id`| admin            | Enable/disable customer    |
-
-## Notes
-
-- OTP is simulated (no SMS provider): in development the code is returned in the API response and shown on the `/otp` page. Wire a real SMS service into `server/controllers/authController.js` (`requestOtp`) for production.
-- `react-router` has a pre-existing npm audit advisory (RSC-mode CSRF bypass) that does not affect this app's BrowserRouter usage.
+[MIT](LICENSE) — free to use, modify, and share.

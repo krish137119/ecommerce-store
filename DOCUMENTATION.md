@@ -1,27 +1,241 @@
 # ShopEasy — Complete Project Documentation
 
-Full-stack, production-style e-commerce application you can reuse as a **white-label template for any client**. It includes a customer-facing storefront, an admin dashboard, authentication, cart + checkout with online payments, and order management.
+**One line:** ShopEasy is a complete online store — **free, open-source, and ready to run** on your own computer or live on the internet. After it's running (or even after it's live), you keep managing products, prices, stock, and orders from a simple admin panel. No coding needed to run or manage the store.
+
+**Two ways to read this document:**
+
+- **Everyone (no coding needed)** → **Part 1** explains every feature in plain English, **Part 2** gets the store running in about 5 minutes, and **Part 3** explains how your private keys stay secret.
+- **Developers** → **Part 4 onwards** is the full technical reference (architecture, data models, every API endpoint, deployment).
+
+---
+
+## PART 1 — FEATURE GUIDE (plain English)
+
+For every feature you get three things: **What it does** → **How it works** → **Why it's useful.**
+
+### 🛍️ A. The storefront — what your customers see
+
+#### A1. Home page
+- **What it does:** A complete landing page — brand banner, a big hero offer, clickable category tiles, deals of the day, new arrivals, bestsellers, a newsletter signup box, and About/Contact/Legal sections.
+- **How it works:** Every section is data-driven: products, prices, and photos come from the database, so the page updates by itself whenever you add or change products. Nothing is hand-written per product.
+- **Why it's useful:** Your store looks finished and trustworthy from the first minute. You can also re-brand everything (store name, logo, tagline, colors) from one settings file.
+
+#### A2. Product catalog (108 demo products, 9 categories)
+- **What it does:** Comes pre-loaded with 108 ready-made products across 9 categories — Mobiles, Electronics, Fashion, Footwear, Home & Kitchen, Appliances, Beauty & Grooming, Sports & Fitness, Toys & Books. Each has photos, price, original price (MRP), and a description.
+- **How it works:** The products live in the database. On first start the app fills the catalog automatically; from then on you manage it from the admin panel.
+- **Why it's useful:** You can demo or launch instantly with realistic-looking stock, then edit prices/products whenever you like — or clear the catalog and add your own.
+
+#### A3. Search, filters, and sorting
+- **What it does:** Customers can search by name, and filter by category, price range, brand, rating, discount, and availability (in stock / out of stock). They can sort by popularity, price, newest, or rating, and switch between a grid and a list view.
+- **How it works:** The search box and filters run instantly in the browser against the product data.
+- **Why it's useful:** On a big catalog, customers find what they want in seconds — which means more completed purchases.
+
+#### A4. Product detail page
+- **What it does:** For each product: a photo gallery with multiple images, the price with the crossed-out MRP and discount %, offers, availability ("In Stock (N available)" or "Out of Stock"), highlights, and "recommended for you" products below.
+- **How it works:** The page loads the product from the database and builds the gallery/offers/ratings automatically.
+- **Why it's useful:** Customers see everything they need to decide (price, offers, availability, photos) on one page, and relevant recommendations encourage buying more.
+
+#### A5. Shopping cart
+- **What it does:** A full cart page with quantity steppers, remove buttons, a price breakdown (MRP, discount, savings, delivery), a free-delivery progress bar, and a sticky total card.
+- **How it works:** **Two modes.** If the customer is signed in, the cart is saved on the server (it follows them across devices). If they're browsing as a guest, the cart is saved on their device and automatically merged into their account when they sign in.
+- **Why it's useful:** Guests can shop without forcing an account (fewer abandoned carts), and signed-in customers never lose their cart. Stock limits are enforced at every step.
+
+#### A6. Checkout
+- **What it does:** A shipping-address form, then order placement, then optional online payment.
+- **How it works:** The customer fills in their name/address/phone, and the store creates the order. Prices are **recalculated on the server** (the customer can't change them). If online payments are switched on, a payment popup opens (UPI, cards, net banking); if not, orders are placed directly.
+- **Why it's useful:** A trustworthy, secure checkout that always charges the correct amount.
+
+#### A7. Order confirmation & history
+- **What it does:** After ordering, customers see a confirmation page with the order summary and address. A "My Orders" page lists all their orders, with a "Pay Now" button if a payment is still pending.
+- **How it works:** Orders are stored in the database per customer and shown from their account area.
+- **Why it's useful:** Customers can track what they bought and finish a missed payment — less confusion and fewer support questions.
+
+### 🔐 B. Accounts & security
+
+#### B1. Register, login, logout
+- **What it does:** Standard account creation (name, email, password), sign-in, and sign-out.
+- **How it works:** Passwords are scrambled (hashed) before storing — the app never keeps readable passwords. Session is kept in secure browser cookies.
+- **Why it's useful:** Simple and safe — even if the database were ever exposed, passwords couldn't be read.
+
+#### B2. Email OTP sign-in (no password needed)
+- **What it does:** Customers can sign in with just their email: they request a code, receive a 6-digit code by email, type it in, and they're in.
+- **How it works:** The code is emailed using Brevo (a free email service — up to 300 emails a day, no website domain needed) and expires in 5 minutes.
+- **Why it's useful:** No password to remember or forget; a faster, modern login option that reduces "forgot password" problems.
+
+#### B3. Profile & password change
+- **What it does:** Customers can edit their name/email/phone and change their password (old password required).
+- **Why it's useful:** Customers stay in control of their account.
+
+#### B4. Customer vs Admin roles
+- **What it does:** Two account types. Customers shop and manage their own orders. Admins get a separate admin panel for the whole store.
+- **How it works:** Every protected action is checked server-side — a normal customer cannot reach admin features, even if they type a URL directly.
+- **Why it's useful:** Only the store owner can change products, orders, or customers. Safe by design, not just by hiding buttons.
+
+#### B5. Secret protection (your private keys)
+- **What it does:** Your database address, email key, payment keys, and admin password all live in one private file (`.env`) that is **never uploaded** to GitHub and never part of the open-source code.
+- **How it works:** See **Part 3** for the full explanation.
+- **Why it's useful:** The project is open source — anyone can download the code — but **only you** ever see your private keys. Everyone else must use their own.
+
+### 💳 C. Payments (Razorpay)
+
+#### C1. Online payments — optional
+- **What it does:** Accepts UPI, credit/debit cards, and net banking through Razorpay (the popular Indian payment gateway).
+- **How it works:** Payments are switched on by adding free test keys (or paid live keys). Every payment is verified on the server with a cryptographic signature before the order is marked paid.
+- **Why it's useful:** You control whether the store takes real money or runs as a demo. It works either way — with keys = real checkout, without keys = "place order" demo mode.
+
+### 📦 D. Real inventory (stock) tracking
+
+#### D1. Live stock per product
+- **What it does:** Every product has a stock count you set from the admin panel.
+- **How it works:** The storefront shows real availability ("In Stock (N available)" / "Only 2 left!" / "Out of Stock"). Adding too many to the cart is blocked, and placing an order **automatically reduces the stock number**. If a product runs out mid-order, the order is refused and stock is rolled back.
+- **Why it's useful:** You never oversell. The "Only 1 left!" messages also create urgency that increases sales.
+
+### ✉️ E. Email notifications (Brevo)
+
+#### E1. OTP login emails
+- **What it does:** Sends the 6-digit login code to the customer's email.
+- **How it works:** Via the free Brevo email service (300 emails/day, no domain needed — just verify your own email address as sender once).
+- **Why it's useful:** Instant, free email delivery for passwordless login.
+
+#### E2. Order confirmation emails
+- **What it does:** When a customer places an order, they automatically get a receipt email with the items, prices, shipping, total, and status.
+- **How it works:** The server sends it through the same Brevo service at the moment the order is created.
+- **Why it's useful:** Customers get a written record of their purchase instantly — a professional touch that builds trust.
+
+### ⚙️ F. Admin dashboard (your control room)
+
+#### F1. Product management
+- **What it does:** Add, edit, and delete products; set name, price, MRP, category, popularity, **stock**, description, and photo.
+- **How it works:** A simple form in the admin panel; changes appear on the store instantly.
+- **Why it's useful:** You run the whole catalog without touching code.
+
+#### F2. Order management
+- **What it does:** See every order with the customer's details and items, and move it through a status flow: **Pending → Processing → Shipped → Delivered → Cancelled**.
+- **How it works:** One dropdown per order in the admin panel.
+- **Why it's useful:** You control the entire order lifecycle and can tell customers exactly where their order is.
+
+#### F3. Customer management
+- **What it does:** See all registered customers and enable/disable their accounts.
+- **How it works:** Disabling an account signs the customer out and blocks future logins.
+- **Why it's useful:** You can block problem accounts instantly.
+
+### 🛠️ G. Engineering quality (why you can trust it)
+
+#### G1. Tamper-proof prices
+- **What it does:** Customers can't change order totals by editing the web page.
+- **How it works:** Every order's prices are recalculated from the database on the server at checkout.
+- **Why it's useful:** No under-pricing, no cheating, no lost money.
+
+#### G2. Security hardening
+- **What it does:** Many small protections working together — secure httpOnly cookies, encrypted passwords, rotating session tokens, login-attempt rate limiting, security headers.
+- **Why it's useful:** Standard best practices that make the store much harder to attack.
+
+#### G3. White-label / re-branding
+- **What it does:** Store name, tagline, logo, colors, and pricing (currency, delivery fee, free-delivery threshold) are all controlled from one settings file.
+- **Why it's useful:** Use the same codebase to launch a store for any client or brand in minutes.
+
+#### G4. Performance
+- **What it does:** Fast, small, optimized pages.
+- **How it works:** The app code is split into small chunks (React libraries load once, separately), images load lazily, and product data is cached.
+- **Why it's useful:** Fast loading = better ranking and fewer visitors leaving.
+
+#### G5. Cloud-ready
+- **What it does:** Can run on your laptop, on a free cloud database (MongoDB Atlas), and deploy to free hosting (Vercel/Render).
+- **Why it's useful:** You can start free and scale later — the code already supports production mode.
+
+#### G6. Code quality
+- **What it does:** Automated checks (linting) and a production build step catch mistakes before they reach users.
+- **Why it's useful:** Fewer bugs, easier updates, cleaner foundation for growth.
+
+---
+
+## PART 2 — RUN IT YOURSELF (about 5 minutes, no coding)
+
+Anyone with a computer can download and run this store.
+
+**What you need (free):**
+
+1. **Node.js** — the engine that runs the app → https://nodejs.org (install the LTS version)
+2. **MongoDB** — the database → install "MongoDB Community Server" from https://www.mongodb.com/try/download/community (for testing on your machine), **or** skip local install and use a free cloud database at https://www.mongodb.com/atlas (recommended — nothing to install)
+
+**Steps:**
+
+```sh
+# 1. Get the code (download as ZIP from GitHub, or on the command line:)
+git clone <your-repo-url>
+cd ecommerce-store
+
+# 2. Install dependencies (one time)
+npm install
+
+# 3. Create your private settings file (copy the template)
+copy .env.example .env        (Windows)
+cp .env.example .env          (Mac / Linux)
+
+# 4. Open ".env" in a text editor and fill in:
+#    JWT_SECRET    → a long random string (one command generates one, see below)
+#    MONGO_URI     → your MongoDB address (local default already works)
+#    ADMIN_EMAIL / ADMIN_PASSWORD → your own admin login
+
+# 5. Start the store
+npm run dev
+```
+
+Generate a random secret key (copy the output into `JWT_SECRET`):
+
+```sh
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+**What you'll see:**
+
+- Store (customers): http://localhost:5173
+- Admin panel: sign in at http://localhost:5173/login with your admin email/password, then open http://localhost:5173/admin
+
+On first start the app automatically creates your admin account and the 108 demo products — so it works immediately.
+
+> **For a real launch** (your own domain, real payments, live email): see Part 4 → Deployment, and Part 3 for where each key goes.
+
+---
+
+## PART 3 — YOUR SECRETS STAY SECRET (important, easy to understand)
+
+The project is **open source** — all the code is public so anyone can download, learn from, and test it. **But your private information is never part of that public code.** Here's how:
+
+| Your private thing | Where it lives | Is it ever uploaded? |
+| --- | --- | --- |
+| Database address (`MONGO_URI`) | `.env` file (your computer / hosting dashboard) | ❌ Never |
+| Email key (`BREVO_API_KEY`) | `.env` file | ❌ Never |
+| Payment keys (`RAZORPAY_*`) | `.env` file | ❌ Never |
+| Admin login | `.env` file + database | ❌ Never |
+| JWT secret | `.env` file | ❌ Never |
+
+**How it works:**
+
+1. The `.env` file is listed in `.gitignore` — a built-in instruction that tells Git/GitHub **never** to upload it. You'll see `.env.example` in the repo (the harmless template) but never anyone's real `.env`.
+2. When you deploy (Part 4), the same secrets are typed into the hosting service's **private settings page** (Render/Vercel) — not into the code.
+3. Anyone else who downloads the project gets the template (`.env.example`) and must create their **own** free keys to make their copy work. They never see yours.
+
+**Where to get your own free keys (one-time, ~10 minutes):**
+
+- **Email (Brevo):** https://brevo.com → Settings → API Keys → *SMTP API key* → copy into `BREVO_API_KEY`. Then Senders → *Create a Sender* → verify your email address → put it in `BREVO_FROM_EMAIL`. Free = 300 emails/day, no domain needed.
+- **Payments (Razorpay):** https://dashboard.razorpay.com → *Test Mode* → *API Keys* → copy into `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`. Leave both empty to run without online payments.
+- **Cloud database (MongoDB Atlas):** https://www.mongodb.com/atlas → create a free cluster → get the connection string (with your database user's password) → put it in `MONGO_URI`.
+
+**Simple rule:** if a file or a value looks like a password/key/secret, it belongs in `.env` (or the hosting dashboard) — never in a code file.
+
+---
+
+## PART 4 — FOR DEVELOPERS (technical reference)
+
+Full-stack, production-style e-commerce application you can reuse as a **white-label template for any client**. It includes a customer-facing storefront, an admin dashboard, authentication, cart + checkout with online payments, order management, live inventory tracking, and email notifications.
 
 - **Frontend:** React 19, Vite 8, React Router 7
 - **Backend:** Node.js, Express 5, Mongoose 9 (MongoDB)
 - **Payments:** Razorpay (optional — works without it, falls back to "place order" flow)
 - **Auth:** JWT access + rotating refresh tokens in httpOnly cookies, bcrypt password hashing, email OTP sign-in (Brevo, with an in-memory dev fallback)
-
----
-
-## 1. What the app does (feature overview)
-
-| Area | Capabilities |
-| --- | --- |
-| Storefront | Home page (ambassador banner, hero, categories, deals, new arrivals, bestsellers, newsletter, about/contact/legal), product listing with search + filters + sorting, product detail with gallery + recommendations |
-| Catalog | 108 seeded demo products across 9 categories (Mobiles, Electronics, Fashion, Footwear, Home & Kitchen, Appliances, Beauty & Grooming, Sports & Fitness, Toys & Books) |
-| Cart | A full `/cart` page (line items, qty stepper, remove, MRP/discount/savings breakdown, free-delivery progress, sticky price-details card). Dual-mode: server cart when signed in, `localStorage` for guests. |
-| Auth | Register, login, logout, email OTP sign-in, refresh-token rotation, profile update, password change. Roles: `user` and `admin`. |
-| Checkout | Shipping form → creates order on server → Razorpay popup (if configured) → verification → order confirmation |
-| Orders | Customer order history, order detail + pay-now for pending payments, admin order status management |
-| Admin | Product CRUD (add/edit/delete), order management, customer enable/disable |
-| Search | Header search + listing-page search; filters: category, price range, brand, rating, discount, availability; sort by popularity/price/newest/rating |
-| Theming | Everything driven by CSS variables; brand name/tagline/colors/pricing configurable in one file |
+- **Email:** Brevo — OTP codes + order confirmations (fire-and-forget, API key never exposed to the browser)
+- **Inventory:** real `stock` per product, enforced on cart add/update and atomically decremented at order time
 
 ---
 
@@ -75,8 +289,7 @@ ecommerce-store/
 ├── .env                        # Your actual secrets (never commit)
 ├── .oxlintrc.json              # Lint rules (react hooks, export rules)
 ├── public/
-│   ├── favicon.svg             # Browser tab icon
-│   └── icons.svg
+│   └── favicon.svg             # Browser tab icon
 │
 ├── server/                     # ══ BACKEND (Express + Mongoose) ══
 │   ├── index.js                # App bootstrap: middleware, routes, SPA serving, startup
