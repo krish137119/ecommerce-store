@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateEmail } from '../utils/validation';
 import './auth.css';
 
 export function OtpLogin() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, requestOtp, verifyOtp } = useAuth();
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -14,10 +13,10 @@ export function OtpLogin() {
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const from = location.state?.from || '/';
+  const from = '/';
 
   if (user) {
-    return <Navigate to={from} replace />;
+    return <Navigate to={user.role === 'admin' ? '/admin' : from} replace />;
   }
 
   const handleSend = async (e) => {
@@ -47,8 +46,8 @@ export function OtpLogin() {
     }
     setIsVerifying(true);
     try {
-      await verifyOtp(email, code);
-      navigate(from, { replace: true });
+      const data = await verifyOtp(email, code);
+      navigate(data?.user?.role === 'admin' ? '/admin' : from, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

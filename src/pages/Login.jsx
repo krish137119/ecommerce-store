@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './auth.css';
 
 export function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { user, login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const from = location.state?.from || '/';
+  const from = '/';
 
   if (user) {
     const destination = user.role === 'admin' ? '/admin' : from;
@@ -85,7 +84,7 @@ export function Login() {
           New to ShopEasy? <Link to="/register">Create an account</Link>
         </p>
         <p className="auth-switch">
-          Or <Link to="/otp" state={{ from: location.state?.from }}>sign in with a one-time code by email</Link>
+          Or <Link to="/otp">sign in with a one-time code by email</Link>
         </p>
       </div>
     </section>
