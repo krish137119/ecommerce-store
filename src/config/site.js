@@ -78,7 +78,12 @@ export const nav = {
     { label: 'Create Account', to: '/register', variant: 'ghost' }
   ],
   account: [
-    { label: 'My Orders', to: '/account/orders', roles: ['user', 'admin'] },
-    { label: 'My Profile', to: '/account/profile', roles: ['user', 'admin'] }
+    { label: 'My Orders', to: '/account/orders', roles: ['user'] },
+    { label: 'My Profile', to: '/account/profile', roles: ['user'] }
   ]
 };
+
+// The separate admin panel URL. Set this once the admin app is deployed,
+// so storefront admins are redirected there automatically.
+export const adminUrl = '';
+

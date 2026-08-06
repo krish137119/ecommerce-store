@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
       try {
         const data = await api('/auth/me');
         if (mounted) {
-          setUser(data.user);
+          setUser(data.user && data.user.role !== 'admin' ? data.user : null);
         }
       } catch {
         if (mounted) {

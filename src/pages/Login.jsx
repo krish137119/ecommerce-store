@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { adminUrl } from '../config/site';
 import './auth.css';
 
 export function Login() {
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +25,16 @@ export function Login() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await login(formData);
+      const result = await login(formData);
+      if (result?.user?.role === 'admin') {
+        await logout();
+        if (adminUrl) {
+          window.location.href = adminUrl;
+        } else {
+          setError('This is an admin account. Manage the store from the Admin Panel instead.');
+        }
+        return;
+      }
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);

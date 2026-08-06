@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { adminUrl } from '../config/site';
 import { validateEmail } from '../utils/validation';
 import './auth.css';
 
 export function OtpLogin() {
   const navigate = useNavigate();
-  const { user, requestOtp, verifyOtp } = useAuth();
+  const { user, requestOtp, verifyOtp, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [codeSent, setCodeSent] = useState(false);
@@ -46,7 +47,16 @@ export function OtpLogin() {
     }
     setIsVerifying(true);
     try {
-      await verifyOtp(email, code);
+      const data = await verifyOtp(email, code);
+      if (data?.user?.role === 'admin') {
+        await logout();
+        if (adminUrl) {
+          window.location.href = adminUrl;
+        } else {
+          setError('This is an admin account. Manage the store from the Admin Panel instead.');
+        }
+        return;
+      }
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
