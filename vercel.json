@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-    "source": "/api/:path*",
-    "destination": "https://shopeasy-api-a9km.onrender.com/api/:path*"
+      "source": "/api/:path*",
+      "destination": "https://shopeasy-api-a9km.onrender.com/api/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
     }
   ]
 }
