@@ -108,19 +108,8 @@ export function OrderConfirmation() {
       <section className="order-confirmation">
         <div className="container">
           <div className="confirmation-card">
-          <div className={`success-icon ${paid ? '' : 'success-icon-pending'}`}>
-            {paid ? (
-              <svg className="success-svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#22D3EE" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path className="tick-circle" d="M22 11.08V12a10 10 0 1 1-5.93-9.14" pathLength="100" />
-                <polyline className="tick-check" points="22 4 12 14.01 9 11.01" pathLength="100" />
-              </svg>
-            ) : (
-              <svg className="pending-svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#F472B6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle className="tick-circle" cx="12" cy="12" r="10" pathLength="100" />
-                <line className="tick-check" x1="12" y1="8" x2="12" y2="12" pathLength="100" />
-                <line className="tick-check" x1="12" y1="16" x2="12.01" y2="16" pathLength="100" />
-              </svg>
-            )}
+          <div className="success-icon">
+            <span className="success-emoji" role="img" aria-label="Order placed">✅</span>
           </div>
           <h1>{paid ? 'Order Confirmed!' : paymentEnabled ? 'Order Placed!' : 'Order Confirmed!'}</h1>
           <p className="order-id">Order ID: <strong>#{order.orderNumber}</strong></p>
