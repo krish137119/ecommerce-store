@@ -11,6 +11,7 @@ export function Header() {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [mobileQuery, setMobileQuery] = useState('');
   const location = useLocation();
@@ -24,6 +25,7 @@ export function Header() {
 
   useEffect(() => {
     closeAll();
+    setMobileSearchOpen(false);
   }, [location]);
 
   useEffect(() => {
@@ -45,6 +47,15 @@ export function Header() {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') setMobileSearchOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobileSearchOpen]);
 
   const goToProducts = (value) => {
     closeAll();
@@ -189,6 +200,27 @@ export function Header() {
             </Link>
           )}
 
+          {layout.showSearch && (
+            <button
+              className="mobile-search-toggle"
+              onClick={() => setMobileSearchOpen(prev => !prev)}
+              aria-label={mobileSearchOpen ? 'Close search' : 'Search'}
+              aria-expanded={mobileSearchOpen}
+            >
+              {mobileSearchOpen ? (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              ) : (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.5" y2="16.5" />
+                </svg>
+              )}
+            </button>
+          )}
+
           {layout.showHamburger && (
             <button
               className="hamburger"
@@ -213,6 +245,26 @@ export function Header() {
           )}
         </div>
       </div>
+
+      {mobileSearchOpen && layout.showSearch && (
+        <div className="mobile-search-bar">
+          <form className="mobile-search-bar-form" role="search" onSubmit={handleSearch}>
+            <LiveSearch
+              value={query}
+              onChange={setQuery}
+              onSubmit={() => {
+                const q = query;
+                setQuery('');
+                setMobileSearchOpen(false);
+                goToProducts(q);
+              }}
+              placeholder={layout.searchPlaceholder}
+              ariaLabel={layout.searchPlaceholder}
+              autoFocus
+            />
+          </form>
+        </div>
+      )}
 
       {menuOpen && (
         <nav id="mobile-menu" className="mobile-menu" aria-label="Mobile navigation">
