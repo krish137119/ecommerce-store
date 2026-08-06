@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { api } from '../api/client';
-import { saveAccount } from '../utils/savedAccounts';
 
 const AuthContext = createContext();
 
@@ -33,13 +32,11 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(async ({ name, email, password }) => {
     const data = await api('/auth/register', { method: 'POST', body: { name, email, password } });
-    saveAccount(data.user);
     setUser(data.user);
   }, []);
 
   const login = useCallback(async ({ email, password }) => {
     const data = await api('/auth/login', { method: 'POST', body: { email, password } });
-    saveAccount(data.user);
     setUser(data.user);
     return data;
   }, []);
@@ -60,7 +57,6 @@ export function AuthProvider({ children }) {
 
   const verifyOtp = useCallback(async (email, code) => {
     const data = await api('/auth/otp/verify', { method: 'POST', body: { email, code } });
-    saveAccount(data.user);
     setUser(data.user);
     return data;
   }, []);

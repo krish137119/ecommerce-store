@@ -79,7 +79,6 @@ export const nav = {
   ],
   account: [
     { label: 'My Orders', to: '/account/orders', roles: ['user', 'admin'] },
-    { label: 'My Profile', to: '/account/profile', roles: ['user', 'admin'] },
-    { label: 'Admin Dashboard', to: '/admin', roles: ['admin'] }
+    { label: 'My Profile', to: '/account/profile', roles: ['user', 'admin'] }
   ]
 };

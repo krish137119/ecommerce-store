@@ -5,7 +5,6 @@ import { ProductsProvider } from './context/ProductsContext';
 import { AuthProvider } from './context/AuthContext';
 import { Header } from './components/Header';
 import { ScrollToSection } from './components/ScrollToSection';
-import { AdminRoute } from './components/AdminRoute';
 import { UserRoute } from './components/UserRoute';
 import { Home } from './pages/Home';
 import { ProductListing } from './pages/ProductListing';
@@ -15,7 +14,6 @@ import { Checkout } from './pages/Checkout';
 import { OrderConfirmation } from './pages/OrderConfirmation';
 import { OrderHistory } from './pages/OrderHistory';
 import { Profile } from './pages/Profile';
-import { AdminDashboard } from './pages/AdminDashboard';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { OtpLogin } from './pages/OtpLogin';
@@ -69,14 +67,6 @@ function App() {
                         <UserRoute>
                           <Profile />
                         </UserRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin"
-                      element={
-                        <AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>
                       }
                     />
                   </Routes>

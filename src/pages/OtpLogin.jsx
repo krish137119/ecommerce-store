@@ -16,7 +16,7 @@ export function OtpLogin() {
   const from = '/';
 
   if (user) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : from} replace />;
+    return <Navigate to="/" replace />;
   }
 
   const handleSend = async (e) => {
@@ -46,8 +46,8 @@ export function OtpLogin() {
     }
     setIsVerifying(true);
     try {
-      const data = await verifyOtp(email, code);
-      navigate(data?.user?.role === 'admin' ? '/admin' : from, { replace: true });
+      await verifyOtp(email, code);
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
