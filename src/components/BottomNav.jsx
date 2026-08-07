@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import './BottomNav.css';
@@ -8,7 +8,6 @@ export function BottomNav() {
   const { user } = useAuth();
   const { cartCount } = useCart();
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.classList.add('has-bottom-nav');
@@ -19,18 +18,13 @@ export function BottomNav() {
   const accountActive = ['/account', '/login', '/register', '/otp'];
 
   const goSearch = () => {
-    const focusSearch = () => {
-      const el = document.getElementById('header-search');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.focus({ preventScroll: true });
-      }
-    };
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(focusSearch, 350);
-    } else {
-      focusSearch();
+    const el = document.getElementById('header-search');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    try {
+      el.focus({ preventScroll: true });
+    } catch {
+      el.focus();
     }
   };
 
