@@ -334,7 +334,26 @@
   }
 
   .guest-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .guest-actions .btn-login {
     display: none;
+  }
+
+  .guest-actions .btn-register {
+    background: var(--gradient-primary);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 0.9rem;
+    box-shadow: 0 4px 16px var(--glow-primary);
+  }
+
+  .guest-actions .btn-register:hover {
+    filter: brightness(1.15);
+    background: var(--gradient-primary);
+    color: #fff;
   }
 
   .account-name {
