@@ -179,6 +179,13 @@
   font-size: 0.875rem;
 }
 
+.admin-form-success {
+  margin: 0.875rem 0 0;
+  color: var(--color-success);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
 .admin-submit-btn {
   margin-top: 1.25rem;
   padding: 0.625rem 1.5rem;

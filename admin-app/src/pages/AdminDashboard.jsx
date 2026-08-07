@@ -45,6 +45,11 @@ export function AdminDashboard() {
   const [customersLoaded, setCustomersLoaded] = useState(false);
   const [customersError, setCustomersError] = useState('');
 
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [pwMessage, setPwMessage] = useState('');
+  const [pwError, setPwError] = useState('');
+  const [pwBusy, setPwBusy] = useState(false);
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -172,6 +177,34 @@ export function AdminDashboard() {
     }
   };
 
+  const handlePwChange = (e) => {
+    const { name, value } = e.target;
+    setPwForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPwError('');
+    setPwMessage('');
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      setPwError('New passwords do not match.');
+      return;
+    }
+    setPwBusy(true);
+    try {
+      await api('/users/me/password', {
+        method: 'PATCH',
+        body: { currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword }
+      });
+      setPwForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPwMessage('Password updated successfully.');
+    } catch (err) {
+      setPwError(err.message);
+    } finally {
+      setPwBusy(false);
+    }
+  };
+
   const openTab = (tab) => {
     setActiveTab(tab);
     if (tab === 'customers' && !customersLoaded) {
@@ -216,6 +249,14 @@ export function AdminDashboard() {
             onClick={() => openTab('customers')}
           >
             Customers ({customersLoaded ? customers.length : '…'})
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'settings'}
+            className={`admin-tab ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => openTab('settings')}
+          >
+            Settings
           </button>
         </div>
 
@@ -547,6 +588,62 @@ export function AdminDashboard() {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="admin-panel">
+            <div className="admin-section-header">
+              <h2>Change Password</h2>
+            </div>
+
+            <form className="admin-form" onSubmit={handlePasswordSubmit}>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label htmlFor="pw-current">Current Password *</label>
+                  <input
+                    id="pw-current"
+                    name="currentPassword"
+                    type="password"
+                    autoComplete="current-password"
+                    value={pwForm.currentPassword}
+                    onChange={handlePwChange}
+                    disabled={pwBusy}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pw-new">New Password *</label>
+                  <input
+                    id="pw-new"
+                    name="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    value={pwForm.newPassword}
+                    onChange={handlePwChange}
+                    disabled={pwBusy}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pw-confirm">Confirm New Password *</label>
+                  <input
+                    id="pw-confirm"
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    value={pwForm.confirmPassword}
+                    onChange={handlePwChange}
+                    disabled={pwBusy}
+                  />
+                </div>
+              </div>
+
+              {pwError && <p className="admin-form-error">{pwError}</p>}
+              {pwMessage && <p className="admin-form-success">{pwMessage}</p>}
+
+              <button type="submit" className="admin-submit-btn" disabled={pwBusy}>
+                {pwBusy ? 'Updating...' : 'Update Password'}
+              </button>
+            </form>
           </div>
         )}
       </div>
