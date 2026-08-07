@@ -118,6 +118,7 @@ export function Header() {
               }}
               placeholder={layout.searchPlaceholder}
               ariaLabel={layout.searchPlaceholder}
+              inputId="header-search"
             />
           </form>
         )}

@@ -4,9 +4,12 @@ import { OrdersProvider } from './context/OrdersContext';
 import { ProductsProvider } from './context/ProductsContext';
 import { AuthProvider } from './context/AuthContext';
 import { Header } from './components/Header';
+import { BottomNav } from './components/BottomNav';
 import { ScrollToSection } from './components/ScrollToSection';
 import { UserRoute } from './components/UserRoute';
 import { Home } from './pages/Home';
+import { layout } from './config/site';
+import './App.css';
 import { ProductListing } from './pages/ProductListing';
 import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
@@ -28,6 +31,7 @@ function App() {
             <Router>
               <div className="app">
                 <Header />
+                {layout.showBottomNav && <BottomNav />}
                 <main>
                   <Routes>
                     <Route path="/" element={<Home />} />

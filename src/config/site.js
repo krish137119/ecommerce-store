@@ -58,6 +58,7 @@ export const layout = {
   showCart: true,
   showAccount: true,
   showHamburger: true,
+  showBottomNav: true,
   searchPlaceholder: 'Search for products...'
 };
 

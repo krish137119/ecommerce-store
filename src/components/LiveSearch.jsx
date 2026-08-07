@@ -10,6 +10,7 @@ export function LiveSearch({
   onSubmit,
   placeholder,
   ariaLabel,
+  inputId,
   compact = false
 }) {
   const { products } = useProducts();
@@ -99,6 +100,7 @@ export function LiveSearch({
         <input
           type="search"
           className="search-input"
+          id={inputId}
           placeholder={placeholder}
           value={value}
           onChange={(event) => onChange(event.target.value)}
