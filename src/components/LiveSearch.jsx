@@ -10,8 +10,7 @@ export function LiveSearch({
   onSubmit,
   placeholder,
   ariaLabel,
-  compact = false,
-  autoFocus = false
+  compact = false
 }) {
   const { products } = useProducts();
   const navigate = useNavigate();
@@ -107,7 +106,6 @@ export function LiveSearch({
           onFocus={() => { if (items.length > 0) setOpen(true); }}
           aria-label={ariaLabel}
           autoComplete="off"
-          autoFocus={autoFocus}
           role="combobox"
           aria-expanded={open}
           aria-controls="live-search-results"

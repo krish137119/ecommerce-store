@@ -250,41 +250,6 @@
   background: var(--color-primary-soft);
 }
 
-/* Mobile search toggle */
-.mobile-search-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  color: var(--color-text);
-  border-radius: var(--radius);
-  transition: color var(--transition), background var(--transition);
-}
-
-.mobile-search-toggle:hover {
-  color: var(--color-primary-hover);
-  background: var(--color-primary-soft);
-}
-
-/* Expandable mobile search bar */
-.mobile-search-bar {
-  border-top: 1px solid var(--color-border);
-  padding: 0.6rem 1.5rem;
-  max-width: var(--header-max-width, 1200px);
-  margin: 0 auto;
-}
-
-.mobile-search-bar-form {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.mobile-search-bar .live-search {
-  flex: 1;
-}
-
 /* Cart */
 .cart-button {
   position: relative;
@@ -351,14 +316,15 @@
 }
 
 @media (max-width: 1024px) {
-  .search-form {
-    display: none;
+  .header-content {
+    flex-wrap: wrap;
   }
 
-  .mobile-search-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .search-form {
+    order: 3;
+    flex: 1 1 100%;
+    max-width: none;
+    margin-top: 0.5rem;
   }
 }
 
@@ -408,11 +374,11 @@
 @media (max-width: 480px) {
   .header-content {
     padding: 0.75rem 1rem;
-    gap: 0.75rem;
+    gap: 0.5rem;
   }
 
-  .mobile-search-bar {
-    padding: 0.6rem 1rem;
+  .search-form {
+    margin-top: 0.25rem;
   }
 
   .mobile-menu {
