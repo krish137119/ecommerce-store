@@ -74,9 +74,19 @@
   color: var(--color-primary-hover);
 }
 
+.bottom-nav-logout:hover,
+.bottom-nav-logout:focus,
+.bottom-nav-logout:active {
+  color: var(--color-danger);
+}
+
 @media (max-width: 768px) {
   .bottom-nav {
     display: flex;
+  }
+
+  body.has-bottom-nav .hamburger {
+    display: none;
   }
 
   body.has-bottom-nav {

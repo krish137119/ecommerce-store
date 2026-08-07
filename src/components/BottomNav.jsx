@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import './BottomNav.css';
 
 export function BottomNav() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { cartCount } = useCart();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.body.classList.add('has-bottom-nav');
@@ -16,6 +17,11 @@ export function BottomNav() {
 
   const accountPath = user ? '/account/profile' : '/login';
   const accountActive = ['/account', '/login', '/register', '/otp'];
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   const goSearch = () => {
     const el = document.getElementById('header-search');
@@ -75,6 +81,17 @@ export function BottomNav() {
         </svg>
         <span>{user ? 'Account' : 'Sign In'}</span>
       </NavLink>
+
+      {user && (
+        <button type="button" className="bottom-nav-item bottom-nav-logout" onClick={handleLogout} aria-label="Log out">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>Logout</span>
+        </button>
+      )}
     </nav>
   );
 }
