@@ -24,17 +24,19 @@ app.set('trust proxy', 1);
 
 app.use(helmet());
 
-function isAllowedOrigin(origin) {
+function isAllowedOrigin(origin, callback) {
   if (!origin) {
-    return false;
+    return callback(null, false);
   }
   if (env.CORS_ORIGINS.includes(origin)) {
-    return true;
+    return callback(null, true);
   }
   if (env.NODE_ENV !== 'production') {
-    return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
   }
-  return false;
+  return callback(null, false);
 }
 app.use(cors({
   origin: isAllowedOrigin,
