@@ -1,5 +1,7 @@
+import { env } from '../config/env.js';
+
 export function notFound(req, res) {
-  res.status(404).json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
+  res.status(404).json({ error: 'Route not found.' });
 }
 
 // oxlint-disable-next-line no-unused-vars -- Express requires 4 args to detect error middleware
@@ -16,6 +18,9 @@ export function errorHandler(err, req, res, next) {
   }
   if (err.code === 11000) {
     return res.status(409).json({ error: 'That value is already in use.' });
+  }
+  if (status >= 500 && env.NODE_ENV === 'production') {
+    return res.status(500).json({ error: 'Something went wrong.' });
   }
   res.status(status).json({ error: err.message || 'Something went wrong.' });
 }

@@ -23,7 +23,23 @@ const app = express();
 app.set('trust proxy', 1);
 
 app.use(helmet());
-app.use(cors({ origin: true, credentials: true }));
+
+function isAllowedOrigin(origin) {
+  if (!origin) {
+    return false;
+  }
+  if (env.CORS_ORIGINS.includes(origin)) {
+    return true;
+  }
+  if (env.NODE_ENV !== 'production') {
+    return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+  }
+  return false;
+}
+app.use(cors({
+  origin: isAllowedOrigin,
+  credentials: true
+}));
 app.use(cookieParser());
 app.use(express.json({ limit: '100kb' }));
 
@@ -33,6 +49,15 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Try again later.' }
+});
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/otp/verify', loginLimiter);
 app.use('/api/auth', authLimiter);
 
 app.get('/api/health', (req, res) => {
