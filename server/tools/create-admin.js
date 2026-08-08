@@ -7,13 +7,15 @@ function usage() {
   console.log(`
 Usage:
   node server/tools/create-admin.js --email <email> --password '<password>' [--name '<name>']
+  node server/tools/create-admin.js --demote <email>
 
 Examples:
   node server/tools/create-admin.js --email myadmin@mydomain.com --password 'My$trong!Pass123' --name 'Store Owner'
+  node server/tools/create-admin.js --demote oldadmin@example.com
 
 What it does:
-  - If a user with that email already exists, it is promoted to admin and given this password.
-  - If not, a brand-new admin account is created.
+  - With --email: creates the account as admin (or promotes it if it already exists).
+  - With --demote: removes admin access from an account (sets role to user).
   - It never touches other accounts.
 `);
 }
@@ -24,17 +26,48 @@ function parseArgs(argv) {
     if (argv[i] === '--email') args.email = argv[i + 1];
     if (argv[i] === '--password') args.password = argv[i + 1];
     if (argv[i] === '--name') args.name = argv[i + 1];
+    if (argv[i] === '--demote') args.demote = argv[i + 1];
     if (argv[i] === '--help' || argv[i] === '-h') args.help = true;
   }
   return args;
 }
 
 async function main() {
-  const { email, password, name, help } = parseArgs(process.argv.slice(2));
+  const { email, password, name, demote, help } = parseArgs(process.argv.slice(2));
 
-  if (help || !email || !password) {
+  if (help) {
     usage();
-    process.exit(help ? 0 : 1);
+    process.exit(0);
+  }
+
+  if (demote) {
+    if (!validateEmail(demote)) {
+      console.error('ERROR: Invalid email address.');
+      process.exit(1);
+    }
+    await connectDB(env.MONGO_URI);
+    const target = await User.findOne({ email: normalizeEmail(demote) });
+    if (!target) {
+      console.error(`No account found for ${normalizeEmail(demote)}.`);
+      await disconnectDB();
+      process.exit(1);
+    }
+    if (target.role !== 'admin') {
+      console.log(`${normalizeEmail(demote)} is not an admin. Nothing to do.`);
+      await disconnectDB();
+      process.exit(0);
+    }
+    target.role = 'user';
+    target.refreshTokenHash = '';
+    await target.save();
+    console.log(`\nDemoted ${normalizeEmail(demote)} -> role=user (admin access removed, session invalidated).\n`);
+    await disconnectDB();
+    process.exit(0);
+  }
+
+  if (!email || !password) {
+    usage();
+    process.exit(1);
   }
   if (!validateEmail(email)) {
     console.error('ERROR: Invalid email address.');
