@@ -34,7 +34,7 @@ npm run dev
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"   # paste the output into JWT_SECRET
 ```
 
-Open http://localhost:5173 for the store, and http://localhost:5173/admin after signing in with your admin credentials.
+Open http://localhost:5173 for the store. The admin panel is a **separate app** in the `admin-app/` folder (run `npm install && npm run dev` inside it, or deploy it on its own); admins are auto-redirected there from the storefront after signing in.
 
 > **Your secrets stay private.** Everything personal (database address, email key, payment keys, admin password) lives in your local `.env` file, which is **never uploaded** to GitHub — so the open-source code never exposes your keys. Anyone who clones the repo uses their own keys from `.env.example`. Full explanation: [DOCUMENTATION.md](DOCUMENTATION.md) → *Part 3*.
 

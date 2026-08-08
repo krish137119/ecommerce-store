@@ -387,6 +387,7 @@ ecommerce-store/
 | `ADMIN_EMAIL` | — (required) | Seeded admin email |
 | `ADMIN_PASSWORD` | — (required) | Seeded admin password |
 | `COOKIE_SECURE` | `false` | Set `true` only over HTTPS |
+| `CORS_ORIGINS` | empty | Comma-separated list of frontend origins allowed to call the API directly (e.g. `https://store.vercel.app,https://admin.vercel.app`). Localhost is always allowed in development. In production, origins not listed get no CORS headers. |
 | `SEED_PRODUCTS` | `true` | Seed demo products while collection is empty |
 | `CURRENCY` | `INR` | Payment currency |
 | `SHIPPING_FEE` | `49` | Flat shipping below threshold |
@@ -496,11 +497,12 @@ Methods: `setPassword(plain)`, `verifyPassword(plain)`, `toSafeJSON()` (never ex
 **OTP sub-flow:** `/otp/request` emails a 6-digit code via Brevo (or logs it to the server console when Brevo isn't configured) → `/otp/verify` checks it against the in-memory store → the user is upserted in MongoDB by that email and a normal JWT session is issued. Brevo never issues the app's session.
 
 **Other security:**
-- `helmet` security headers, CORS with credentials, rate limiting on `/api/auth` (60 req / 15 min).
+- `helmet` security headers; CORS **allowlist** (only the origins in `CORS_ORIGINS`, plus localhost in dev — unknown origins are denied, no headers sent).
+- Rate limiting: `/api/auth` 60 req / 15 min, **login + OTP verify 10 req / 15 min**, **order creation 10 req / 15 min per IP plus a store-wide cap of 60 / 15 min**.
 - bcrypt password hashing; passwords limited to ≤72 chars.
 - Order prices are **recomputed server-side** from the database — the client can't alter totals.
 - Payment signature verification uses `crypto.timingSafeEqual`.
-- `errorHandler` normalizes errors (CastError, ValidationError, duplicate keys → friendly messages).
+- `errorHandler` normalizes errors (CastError, ValidationError, duplicate keys → friendly messages) and hides internal error details in production.
 
 ---
 
@@ -677,7 +679,7 @@ The recommended production setup splits the app the way it's designed:
 
 - **Frontend (store) → Vercel** (free) — serves the built React app.
 - **API → Render** (free) — runs the Express server, which connects to MongoDB Atlas.
-- **One domain illusion:** Vercel *rewrites* `/api/*` to the Render URL (see `vercel.json`), so the browser treats the whole store as **one site**. This keeps the existing `SameSite=Strict` + `httpOnly` cookie auth working with no CORS changes.
+- **One domain illusion:** Vercel *rewrites* `/api/*` to the Render URL (see `vercel.json`), so the browser treats the whole store as **one site**. This keeps `SameSite=Strict` + `httpOnly` cookie auth working. (For the separate admin app on another domain, set `CORS_ORIGINS` on Render to that domain so its cross-origin logins are allowed.)
 
 ```
 Browser → https://store.vercel.app          (frontend, Vercel)
@@ -689,7 +691,7 @@ The two config files already in the repo make this almost one-click:
 
 | File | What it does |
 | --- | --- |
-| `vercel.json` | Rewrites `/api/:path*` → `${API_URL}/api/:path*` (set `API_URL` env var on Vercel to your Render URL) |
+| `vercel.json` | Rewrites `/api/:path*` → your Render URL, e.g. `https://shopeasy-api.onrender.com/api/:path*` (edit the destination if your Render URL differs) |
 | `render.yaml` | Render blueprint for the API: Node runtime, build + start commands, health check, env vars (secrets use `sync: false` so you type them in the Render dashboard — never in the repo) |
 
 ### Step 1 — Deploy the API to Render
@@ -699,9 +701,10 @@ The two config files already in the repo make this almost one-click:
 3. During setup Render asks for the `sync: false` variables. Fill them from your private `.env` (**generate a brand-new `JWT_SECRET`** — don't reuse the dev one):
    - `MONGO_URI` — your Atlas connection string (see Step 3)
    - `JWT_SECRET` — new random value: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
-   - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — admin login (must exist in Atlas, see Step 3)
+   - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — admin login (if the account already exists in Atlas, rotate it with the tool below instead)
    - `BREVO_API_KEY` / `BREVO_FROM_EMAIL` — your Brevo sender values
    - `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` — leave empty to run without online payments
+   - `CORS_ORIGINS` — the exact frontend URLs (store + admin) that may call the API directly
 4. Click **Apply**. Wait for the deploy; when it's green, open `https://<your-app>.onrender.com/api/health` → you should see `{"ok":true}`.
 5. Copy the service URL (e.g. `https://shopeasy-api.onrender.com`) — you'll need it for Vercel.
 
@@ -722,7 +725,7 @@ The two config files already in the repo make this almost one-click:
 1. Go to https://cloud.mongodb.com → your cluster → **Network Access** → **Add IP Address** → allow `0.0.0.0/0` (anywhere) so Render can connect. (Your cluster already has your 108 products + admin account.)
 2. In **Database Access**, confirm your database user has read/write permission.
 3. Your `MONGO_URI` (from `.env`) is the same string Render will use.
-4. Because the admin already exists in Atlas, `ADMIN_PASSWORD` in Render does **not** override it — log in with the existing admin password. (On a brand-new empty cluster, Render's `ADMIN_EMAIL`/`ADMIN_PASSWORD` create the admin automatically.)
+4. Because the admin already exists in Atlas, `ADMIN_PASSWORD` in Render does **not** override it — log in with the existing admin password. (On a brand-new empty cluster, Render's `ADMIN_EMAIL`/`ADMIN_PASSWORD` create the admin automatically.) To change or rotate the admin account later, use the `server/tools/create-admin.js` tool instead (see below).
 
 ### Step 4 — Optional: custom domain & live payments
 
@@ -774,3 +777,17 @@ NODE_ENV=production npm run start   # Express serves dist/ + API on PORT
 | "Payment verification failed" | Razorpay test mode: order must be paid in the same test key context |
 | 401 loops in the browser | Clear cookies, or check `COOKIE_SECURE` is not `true` on HTTP |
 | Frontend can't reach API | Dev: run `npm run dev` (Vite proxies `/api`); check `:5000` is up |
+
+---
+
+## 18. Admin & security tools
+
+Run these locally (they read `MONGO_URI` from your `.env`):
+
+| Command | What it does |
+| --- | --- |
+| `node server/tools/list-admins.js` | Lists every admin account (email, active, created). Use it to catch accounts you don't recognise. |
+| `node server/tools/create-admin.js --email <e> --password '<p>' [--name '<n>']` | Creates a new admin (or promotes an existing account to admin) with the given password. |
+| `node server/tools/create-admin.js --demote <email>` | Removes admin access from an account (sets role back to `user` and invalidates its sessions). |
+
+**Best practice after a compromise or on first launch:** pick a strong random admin email + password, run `create-admin` to make it admin, run `--demote` on the old default admin, then update `ADMIN_EMAIL`/`ADMIN_PASSWORD` in Render's dashboard and redeploy.
