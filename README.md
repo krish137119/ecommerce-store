@@ -65,6 +65,12 @@ Open http://localhost:5173 for the store. The admin panel is a **separate app** 
 | `npm run start` | Runs in production mode (serves the built store) |
 | `npm run lint` | Checks code quality |
 
+## Security & acknowledgments
+
+ShopEasy takes security seriously. Thank you to the researchers who report issues responsibly.
+
+- **Mrutyunjaya Jena** ([@mrutyunjaya-jena](https://github.com/mrutyunjaya-jena)) — reported the unauthenticated order-creation vulnerability on `POST /api/orders` (CWE-306). Fixed: order creation now requires authentication and is rate-limited.
+
 ## License
 
 [MIT](LICENSE) — free to use, modify, and share.
